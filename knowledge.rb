@@ -3,7 +3,8 @@ class Object
     unless name.is_a? Hash
       define_method(name) do
         unless instance_variable_defined?("@#{name}")
-          instance_variable_set("@#{name}", send("_#{name}"))
+          value = block_given? ? instance_exec(&block) : value
+          instance_variable_set("@#{name}", value)
         else
           instance_variable_get("@#{name}")
         end
@@ -15,10 +16,6 @@ class Object
 
       define_method("#{name}=") do |v|
         instance_variable_set("@#{name}", v)
-      end
-
-      define_method("_#{name}") do
-        block_given? ? instance_exec(&block) : value
       end
     else
       name.each { |key, value| attribute(key, value) }
